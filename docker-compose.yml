@@ -6,13 +6,13 @@ services:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
       PGDATA: /var/lib/postgresql/data
-      POSTGRES_DB: whatsapp_clone
+      POSTGRES_DB: devspace_chat
     volumes:
       - postgres:/data/postgres
     ports:
       - 5432:5432
     networks:
-      - whatsapp-clone
+      - devspace-chat
     restart: unless-stopped
   keycloak:
     container_name: keycloak-wac
@@ -23,11 +23,11 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     networks:
-      - whatsapp-clone
+      - devspace-chat
     command:
       - "start-dev"
 networks:
-  whatsapp-clone:
+  devspace-chat:
     driver: bridge
 
 volumes:
