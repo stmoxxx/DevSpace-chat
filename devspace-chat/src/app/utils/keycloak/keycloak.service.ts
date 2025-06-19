@@ -13,28 +13,26 @@ export class KeycloakService {
     private router: Router // Angular router for navigation, if needed
   ) { }
 
-  // Getter to initialize and return the Keycloak instance
+  // Zainicjuj i zwróć instancję Keycloak
   get keycloak() {
     if (!this._keycloak) {
       this._keycloak = new Keycloak({
-        url: 'http://localhost:9090', // Keycloak server URL
-        realm: 'devspace-chat',       // Realm name
-        clientId: 'devspace-chat-app' // Client ID registered in Keycloak
+        url: 'http://localhost:9090', // Adres URL serwera Keycloak
+        realm: 'devspace-chat',       // Nazwa realmu
+        clientId: 'devspace-chat-app' // Identyfikator klienta zarejestrowany w Keycloak
       });
     }
     return this._keycloak;
   }
 
-  // Initializes Keycloak and enforces login
+  // Inicjuje Keycloak i wymusza logowanie
   async init() {
     const authenticated = await this.keycloak.init({
-      onLoad: 'login-required', // Ensures user is logged in
-      // silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-      // checkLoginIframe: false
+      onLoad: 'login-required', // Sprawdza, czy użytkownik jest zalogowany.
     });
   }
 
-  // Triggers Keycloak login
+  // Uruchamia logowanie do Keycloak
   async login() {
     await this.keycloak.login();
   }

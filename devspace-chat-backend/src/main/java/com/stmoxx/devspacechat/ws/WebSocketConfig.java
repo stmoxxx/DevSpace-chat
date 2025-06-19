@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // Konfiguracja brokera wiadomości, aby włączyć prosty broker dla wiadomości specyficznych dla użytkownika.
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/user"); // Włączanie prosty broker wiadomości dla miejsca docelowego użytkownika
+        registry.enableSimpleBroker("/user"); // Włączanie prostego brokera wiadomości dla miejsca docelowego użytkownika
         registry.setApplicationDestinationPrefixes("/app"); // Prefiks dla miejsc docelowych aplikacji (np. wiadomości z aplikacji)
         registry.setUserDestinationPrefix("/user"); // Prefiks dla miejsc docelowych określonych przez użytkownika (np.
                                                     // routing wiadomości użytkownika)

@@ -2,20 +2,20 @@ import { HttpHeaders, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { KeycloakService } from '../keycloak/keycloak.service';
 
-// HTTP interceptor function to attach the Keycloak token to outgoing requests
+// Funkcja przechwytywania HTTP służąca do dołączania tokenu Keycloak do wychodzących żądań
 export const keycloakHttpInterceptor: HttpInterceptorFn = (req, next) => {
-  const keycloakService = inject(KeycloakService); // Inject KeycloakService to access the token
-  const token = keycloakService.keycloak.token; // Retrieve the current token
+  const keycloakService = inject(KeycloakService); // Dodanie KeycloakService, aby uzyskać dostęp do tokenu.
+  const token = keycloakService.keycloak.token; // Pobiera bieżący token
 
   if (token) {
-    // If token exists, clone the request and add the Authorization header
+    // Jeśli token istnieje, sklonuj żądanie i dodaj nagłówek Authorization.
     const authReq = req.clone({
       headers: new HttpHeaders({
         Authorization: `Bearer ${token}`
       })
     });
-    return next(authReq); // Pass the modified request to the next handler
+    return next(authReq); // Przekaż zmodyfikowane żądanie do następnego modułu obsługi.
   }
 
-  return next(req); // If no token, pass the original request unmodified
+  return next(req); // Jeśli nie ma tokenu, przekaż oryginalne żądanie bez zmian.
 };

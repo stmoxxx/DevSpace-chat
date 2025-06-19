@@ -41,3 +41,5 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Abstra
                 .collect(toSet());
     }
 }
+
+

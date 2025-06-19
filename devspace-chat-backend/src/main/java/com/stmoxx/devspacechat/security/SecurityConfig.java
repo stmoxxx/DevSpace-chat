@@ -51,10 +51,10 @@ public class SecurityConfig {
                                                                                                                          // JWT
                                                                                                                          // authentication
                                                                                                                          // converter
-                return http.build(); // Build the HttpSecurity configuration
+                return http.build();
         }
 
-        // Bean to configure CORS (Cross-Origin Resource Sharing) settings
+        // Bean do konfiguracji ustawień CORS (Cross-Origin Resource Sharing)
         @Bean
         public CorsFilter corsFilter() {
                 final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -65,14 +65,15 @@ public class SecurityConfig {
                                 HttpHeaders.ORIGIN,
                                 HttpHeaders.CONTENT_TYPE,
                                 HttpHeaders.ACCEPT,
-                                HttpHeaders.AUTHORIZATION)); // Allow certain HTTP headers
+                                HttpHeaders.AUTHORIZATION)); // Zezwalaj na określone nagłówki HTTP
                 config.setAllowedMethods(Arrays.asList(
                                 "GET",
                                 "POST",
                                 "DELETE",
                                 "PUT",
-                                "PATCH")); // Allow specific HTTP methods
-                source.registerCorsConfiguration("/**", config); // Apply this CORS configuration to all endpoints
-                return new CorsFilter(source); // Return the configured CORS filter
+                                "PATCH")); // Zezwalaj na określone metody HTTP
+                source.registerCorsConfiguration("/**", config); // Zastosuj tę konfigurację CORS do wszystkich punktów końcowych
+                return new CorsFilter(source);
         }
 }
+

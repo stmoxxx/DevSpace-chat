@@ -12,14 +12,15 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    // Send a WebSocket notification to a specific user
+    // Wyślij powiadomienie WebSocket do określonego użytkownika
     public void sendNotification(String userId, Notification notification) {
         log.info("Sending WS notification to {} with payload {}", userId, notification);
 
-        // Convert and send the notification to the user via WebSocket
+        // Przekonwertuj i wyślij powiadomienie do użytkownika za pośrednictwem WebSocket
         messagingTemplate.convertAndSendToUser(
                 userId,
                 "/chat",
                 notification);
     }
 }
+

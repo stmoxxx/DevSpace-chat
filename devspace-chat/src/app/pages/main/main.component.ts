@@ -55,10 +55,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  ngOnInit(): void {
-    this.initWebSocket(); // Initialize WebSocket for receiving live chat notifications.
-    this.getAllChats();   // Fetch list of all chats for the logged-in user.
-  }
+
 
   chatSelected(chatResponse: ChatResponse) {
     this.selectedChat = chatResponse;
@@ -81,7 +78,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
         type: 'TEXT',
       };
 
-      // Send message to server and optimistically update UI with new message.
+      // Wysyła wiadomość do serwera i aktualizuje interfejs użytkownika
       this.messageService.saveMessage({
         body: messageRequest
       }).subscribe({
@@ -115,7 +112,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   onClick() {
-    this.setMessagesToSeen(); // Marks current chat messages as seen when clicked (e.g., user focuses on chat area).
+    this.setMessagesToSeen(); // Marks current chat messages as seen when clicked
   }
 
   uploadMedia(target: EventTarget | null) {
@@ -125,10 +122,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
       reader.onload = () => {
         if (reader.result) {
 
-          // Extract base64 content from the Data URL.
+          // Pobierz zawartość base64 z adresu URL danych.
           const mediaLines = reader.result.toString().split(',')[1];
 
-          // Uploads media file to backend, then constructs and adds an IMAGE message locally.
+          // Przesyła plik multimedialny do serwera, a następnie tworzy i dodaje lokalnie komunikat IMAGE.
           this.messageService.uploadMedia({
             'chat-id': this.selectedChat.id as string,
             body: {
@@ -142,47 +139,57 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
                 content: 'Attachment',
                 type: 'IMAGE',
                 state: 'SENT',
-                media: [mediaLines], // Embeds the base64 string as media.
+                media: [mediaLines], // Osadza ciąg znaków base64 jako multimedia.
                 createdAt: new Date().toString()
               };
-              this.chatMessages.push(message); // Optimistically appends media message to chat list.
+              this.chatMessages.push(message);
             }
           });
         }
       }
-      reader.readAsDataURL(file); // Converts file to base64 string.
+      reader.readAsDataURL(file); // Konwertuje plik base64 na ciąg znaków String.
     }
   }
 
-  logout() {
-    this.keycloakService.logout(); // Triggers logout via Keycloak.
-  }
-
-  get userName() {
-    return this.keycloakService.userName
-  }
-
-  get fullName() {
-    return this.keycloakService.fullName
-  }
-
-  get email() {
-    return this.keycloakService.email
-  }
-
   private setMessagesToSeen() {
-    // Sends request to mark all messages in the selected chat as 'seen'.
+    // Wysyła żądanie oznaczenia wszystkich wiadomości w wybranym czacie jako „przeczytane”.
     this.messageService.setMessageToSeen({
       'chat-id': this.selectedChat.id as string
     }).subscribe({
       next: () => {
-        // No-op, handled silently.
+
       }
     });
   }
 
+  ngOnInit(): void {
+    this.initWebSocket(); // Inicjalizuje WebSocket, żeby odbierać powiadomienia z czatu na żywo.
+    this.getAllChats();   // Pobiera listę wszystkich czatów dla zalogowanego użytkownika.
+  }
+  private initWebSocket() {
+    // Sprawdza, że użytkownik jest uwierzytelniony i posiada unikalny identyfikator.
+    if (this.keycloakService.keycloak.tokenParsed?.sub) {
+      let ws = new SockJS('http://localhost:8080/ws'); // Tworzy połączenie z WebSocket
+      this.socketClient = Stomp.over(ws); // Wykorzysta protokół STOMP over SockJS
+      const subUrl = `/user/${this.keycloakService.keycloak.tokenParsed?.sub}/chat`;
+
+      this.socketClient.connect(
+        { 'Authorization': 'Bearer ' + this.keycloakService.keycloak.token }, // Nagłówek autoryzacji
+        () => {
+          // Po pomyślnym nawiązaniu połączenia śledzi powiadomienia czatu użytkownika.
+          this.notificationSubscription = this.socketClient.subscribe(subUrl,
+            (message: any) => {
+              const notification: Notification = JSON.parse(message.body);
+              this.handleNotification(notification); // Obsługa aktualizacji w czasie rzeczywistym
+            },
+            () => console.error('Error while connecting to webSocket') // Wypadek awarii subskrypcji
+          );
+        }
+      );
+    }
+  }
   private getAllChats() {
-    // Retrieves all chats for the current user (likely where user is a receiver).
+    // Pobiera wszystkie czaty dla bieżącego użytkownika .
     this.chatService.getChatsByReceiver()
       .subscribe({
         next: (res) => {
@@ -192,7 +199,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private getAllChatMessages(chatId: string) {
-    // Loads all messages associated with a given chat ID.
+    // Ładuje wszystkie wiadomości powiązane z danym identyfikatorem czatu.
     this.messageService.getAllMessages({
       'chat-id': chatId
     }).subscribe({
@@ -202,34 +209,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-
-  private initWebSocket() {
-    // Ensure the user is authenticated and has a unique identifier
-    if (this.keycloakService.keycloak.tokenParsed?.sub) {
-      let ws = new SockJS('http://localhost:8080/ws'); // Create WebSocket connection
-      this.socketClient = Stomp.over(ws); // Use STOMP protocol over SockJS
-      const subUrl = `/user/${this.keycloakService.keycloak.tokenParsed?.sub}/chat`; // Private user topic
-
-      this.socketClient.connect(
-        { 'Authorization': 'Bearer ' + this.keycloakService.keycloak.token }, // Auth header
-        () => {
-          // On successful connection, subscribe to the user's chat notifications
-          this.notificationSubscription = this.socketClient.subscribe(subUrl,
-            (message: any) => {
-              const notification: Notification = JSON.parse(message.body);
-              this.handleNotification(notification); // Handle real-time update
-            },
-            () => console.error('Error while connecting to webSocket') // Fallback if subscription fails
-          );
-        }
-      );
-    }
-  }
-
   private handleNotification(notification: Notification) {
     if (!notification) return;
 
-    // If notification is for the currently opened chat
+    // Jeśli powiadomienie dotyczy aktualnie otwartej rozmowy
     if (this.selectedChat && this.selectedChat.id === notification.chatId) {
       switch (notification.type) {
         case 'MESSAGE':
@@ -300,6 +283,25 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewChecked {
       const div = this.scrollableDiv.nativeElement;
       div.scrollTop = div.scrollHeight;
     }
+  }
+  userProfile() {
+    this.keycloakService.accountManagement(); // Kieruje użytkownika na stronę zarządzania kontem Keycloak.
+  }
+
+  logout() {
+    this.keycloakService.logout(); // Wywołuje wylogowanie za pośrednictwem Keycloak.
+  }
+
+  get userName() {
+    return this.keycloakService.userName
+  }
+
+  get fullName() {
+    return this.keycloakService.fullName
+  }
+
+  get email() {
+    return this.keycloakService.email
   }
 
   private extractFileFromTarget(target: EventTarget | null): File | null {

@@ -26,16 +26,17 @@ public class UserSynchronizerFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // If the user is authenticated with a JWT token, synchronize with IDP
+        // Jeśli użytkownik jest uwierzytelniony za pomocą tokenu JWT, zsynchronizuj z IDP
         if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
             JwtAuthenticationToken token = ((JwtAuthenticationToken) SecurityContextHolder.getContext()
                     .getAuthentication());
 
-            // Synchronize user data with IDP using the JWT token
+            // Synchronizuj dane użytkownika z IDP za pomocą tokenu JWT.
             userSynchronizer.synchronizeWithIdp(token.getToken());
         }
 
-        // Proceed with the next filter in the chain
+        // Przejdź do kolejnego filtra w łańcuchu.
         filterChain.doFilter(request, response);
     }
 }
+

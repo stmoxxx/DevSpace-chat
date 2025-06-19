@@ -24,9 +24,7 @@ public class UserSynchronizer {
             User user = userMapper.fromTokenAttributes(token.getClaims());
             optUser.ifPresent(value -> user.setId(value.getId()));
             userRepository.save(user);
-
         });
-
     }
 
     private Optional<String> getUserEmail(Jwt token) {
@@ -35,6 +33,5 @@ public class UserSynchronizer {
             return Optional.of(attributes.get("email").toString());
         }
         return Optional.empty();
-
     }
 }

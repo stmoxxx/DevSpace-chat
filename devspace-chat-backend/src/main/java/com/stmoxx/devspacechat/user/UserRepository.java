@@ -18,3 +18,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(name = UserConstants.FIND_USER_BY_PUBLIC_ID)
     Optional<User> findByPublicId(@Param("publicId") String senderId);
 }
+

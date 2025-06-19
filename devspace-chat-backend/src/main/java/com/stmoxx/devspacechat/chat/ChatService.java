@@ -19,7 +19,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ChatMapper mapper;
 
-    // Retrieves chats for the current user
+    // Pobiera czaty użytkownika
     @Transactional(readOnly = true)
     public List<ChatResponse> getChatsByReceiverId(Authentication currentUser) {
         final String userId = currentUser.getName();
@@ -29,7 +29,7 @@ public class ChatService {
                 .toList();
     }
 
-    // Creates a new chat or retrieves the existing one
+    // Tworzy nowy czat lub pobiera istniejący.
     public String createChat(String senderId, String receiverId) {
 
         Optional<Chat> existingChat = chatRepository.findChatByReceiverAndSender(senderId, receiverId);
@@ -50,3 +50,5 @@ public class ChatService {
         return savedChat.getId();
     }
 }
+
+

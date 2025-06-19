@@ -21,28 +21,29 @@ import java.util.List; // For list of chat responses
                     // documentation
 public class ChatController {
 
-    private final ChatService chatService; // Chat service dependency
+    private final ChatService chatService;
 
-    // POST endpoint to create a new chat between sender and receiver
+    // Endpoint POST do utworzenia nowego czatu między nadawcą a odbiorcą
     @PostMapping
     public ResponseEntity<StringResponse> createChat(
-            @RequestParam(name = "sender-id") String senderId, // Extract sender ID from request
-            @RequestParam(name = "receiver-id") String receiverId) { // Extract receiver ID from request
+            @RequestParam(name = "sender-id") String senderId, // Pobierz identyfikator nadawcy z żądania
+            @RequestParam(name = "receiver-id") String receiverId) { // Pobierz identyfikator odbiorcy z żądania
 
-        // Call the service to create a new chat and return the chat ID
+        // Wywołaj usługę, aby utworzyć nowy czat i zwrócić identyfikator czatu.
         final String chatId = chatService.createChat(senderId, receiverId);
 
-        // Wrap the chat ID in a custom response object and return it
+
         StringResponse response = StringResponse.builder()
-                .response(chatId) // Set the response field with the generated chat ID
+                .response(chatId)
                 .build();
-        return ResponseEntity.ok(response); // Return the response with HTTP status 200
+        return ResponseEntity.ok(response);
     }
 
-    // GET endpoint to retrieve chats by receiver (authenticated user)
+    // Endpoint GET do pobierania czatów według odbiorcy (uwierzytelnionego użytkownika)
     @GetMapping
     public ResponseEntity<List<ChatResponse>> getChatsByReceiver(Authentication authentication) {
         // Use the authenticated user's details to retrieve their chats
         return ResponseEntity.ok(chatService.getChatsByReceiverId(authentication));
     }
 }
+

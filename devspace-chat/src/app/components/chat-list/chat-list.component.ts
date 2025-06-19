@@ -27,18 +27,18 @@ export class ChatListComponent {
     private keycloakService: KeycloakService // Handles authentication and user info
   ) { }
 
-  // Fetch all users to display in search contact list
+  // Pobiera wszystkich użytkowników do wyświetlenia na liście kontaktów wyszukiwania
   searchContact() {
     this.userService.getAllUsers()
       .subscribe({
         next: (users) => {
           this.contacts = users;
-          this.searchNewContact = true; // Show search contact UI
+          this.searchNewContact = true;
         }
       });
   }
 
-  // Create a new chat with selected contact
+  // Utwórz nowy czat z wybranym kontaktem
   selectContact(contact: UserResponse) {
     this.chatService.createChat({
       'sender-id': this.keycloakService.userId as string,
@@ -53,9 +53,9 @@ export class ChatListComponent {
           senderId: this.keycloakService.userId,
           receiverId: contact.id
         };
-        this.chats().unshift(chat); // Add new chat to top of list
-        this.searchNewContact = false; // Hide search UI
-        this.chatSelected.emit(chat); // Notify parent of new chat selection
+        this.chats().unshift(chat); // Dodaj nowy czat na górę listy
+        this.searchNewContact = false;
+        this.chatSelected.emit(chat);
       }
     });
   }
